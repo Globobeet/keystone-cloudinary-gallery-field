@@ -1,6 +1,5 @@
 const { importView } = require('@keystonejs/build-field-types');
-const { CloudinaryImage } = require('@keystonejs/fields');
-const CloudinaryImageGallery = require('./Implementation');
+const { CloudinaryImageGallery, MongoInterface, KnexInterface }  = require('./Implementation');
 
 module.exports = {
     type: 'CloudinaryImageGallery',
@@ -10,5 +9,8 @@ module.exports = {
         Field: importView('./views/Field'),
         Cell: importView('./views/Cell'),
     },
-    adapters: CloudinaryImage.adapters,
+    adapters: {
+        mongo: MongoInterface,
+        knex: KnexInterface,
+    },
 };
