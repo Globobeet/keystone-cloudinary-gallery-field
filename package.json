@@ -1,0 +1,12 @@
+{
+  "name": "keystone-cloudinary-gallery-field",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "repository": "https://github.com/Globobeet/keystone-cloudinary-gallery-field.git",
+  "author": "joshlasdin <joshlasdindesign@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@keystonejs/build-field-types": "^5.2.4",
+    "@keystonejs/fields": "^7.0.2"
+  }
+}
