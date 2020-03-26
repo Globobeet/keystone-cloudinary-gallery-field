@@ -6,7 +6,10 @@
   "author": "joshlasdin <joshlasdindesign@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@keystonejs/adapter-knex": "^7.0.0",
+    "@keystonejs/adapter-mongoose": "^6.0.0",
     "@keystonejs/build-field-types": "^5.2.4",
-    "@keystonejs/fields": "^7.0.2"
+    "@keystonejs/fields": "^7.0.2",
+    "mongoose": "^5.9.6"
   }
 }
