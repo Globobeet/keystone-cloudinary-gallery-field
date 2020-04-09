@@ -1,75 +1,57 @@
-const { CloudinaryImage, Implementation } = require('@keystonejs/fields');
+const { CloudinaryImage } = require('@keystonejs/fields');
 const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose');
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex');
-const mongoose = require('mongoose');
+const { Types: MongooseTypes } = require('mongoose');
 
-const {
-  Types: { ObjectId },
-} = mongoose;
-
-class CloudinaryImageGallery extends CloudinaryImage.implementation {
-  //   constructor(...args) {
-  //     super(...args);
-  //     this.fileAdapter = this.adapter;
-  //   }
-
+class CloudinaryGallery extends CloudinaryImage.implementation {
   gqlOutputFields() {
     return [`${this.path}: CloudinaryGallery`];
   }
 
-  //   gqlOutputFieldResolvers() {
-  //     return {
-  //       [this.path]: item => {
-  //         const itemValues = item[this.path];
-  //         if (!itemValues) return null;
+  gqlOutputFieldResolvers() {
+    return {
+      [this.path]: item => {
+        const itemValues = item[this.path];
+        if (!itemValues) return null;
+        const images = itemValues.images || [];
+        return {
+          ...itemValues,
+          images: images.map(item => ({
+            ...item,
+            image: {
+              ...item.image,
+              publicUrl: this.fileAdapter.publicUrl(item.image),
+              publicUrlTransformed: ({ transformation }) =>
+                this.fileAdapter.publicUrlTransformed(item.image, transformation),
+            },
+          })),
+        };
+      },
+    };
+  }
 
-  //         const entries = itemValues.entries || [];
-  //         console.log('getOutputFieldResolvers', itemValues);
-  //         return {
-  //           ...itemValues,
-  //           entries: entries.map(entry => ({
-  //             ...entry,
-  //             image: {
-  //               ...entry.image,
-  //               publicUrl: this.fileAdapter.publicUrl(itemValues),
-  //               publicUrlTransformed: ({ transformation }) =>
-  //                 this.fileAdapter.publicUrlTransformed(itemValues, transformation),
-  //             },
-  //           })),
-  //         };
-
-  //         // itemValues.forEach(itemValue => {
-  //         //     if (itemValue.id) itemValue.id = itemValue.id.toString();
-  //         // });
-
-  //         // FIXME: This can hopefully be removed once graphql 14.1.0 is released.
-  //         // https://github.com/graphql/graphql-js/pull/1520
-  //         // if (itemValues.id) itemValues.id = itemValues.id.toString();
-  //       },
-  //     };
-  //   }
-
-  getGqlAuxTypes() {
+  getGqlAuxTypes({ schemaName }) {
     return [
+      ...super.getGqlAuxTypes({ schemaName }),
       `
-      input CloudinaryGalleryEntryInput {
-          caption: String
-          image: Upload
-      }
-
-      input CloudinaryGalleryInput {
-          entries: [CloudinaryGalleryEntryInput]
-      }
-
-      type CloudinaryGalleryEntry {
-          caption: String
-          image: CloudinaryImage_File
-      }
-
-      type CloudinaryGallery {
-        entries: [CloudinaryGalleryEntry]
-      }
-    `,
+          input CloudinaryGalleryImageInput {
+              isCover: Boolean
+              caption: String
+              image: Upload
+          }
+          input CloudinaryGalleryInput {
+              images: [CloudinaryGalleryImageInput]
+          }
+          type CloudinaryGalleryImage {
+              isCover: Boolean
+              caption: String
+              image: CloudinaryImage_File
+          }
+          type CloudinaryGallery {
+            cover: CloudinaryImage_File
+            images: [CloudinaryGalleryImage]
+          }
+        `,
     ];
   }
 
@@ -82,11 +64,18 @@ class CloudinaryImageGallery extends CloudinaryImage.implementation {
   }
 
   async resolveInput({ resolvedData, existingItem }) {
+    /*
+    I don't think these apply to us, as our "null" condition would still
+    look like:
+
+    {
+      cover: null,
+      images: [],
+    }
+
+
     const previousData = existingItem && existingItem[this.path];
     const uploadData = resolvedData[this.path];
-
-    console.log('>>> we in here');
-    return null;
 
     // NOTE: The following two conditions could easily be combined into a
     // single `if (!uploadData) return uploadData`, but that would lose the
@@ -102,7 +91,62 @@ class CloudinaryImageGallery extends CloudinaryImage.implementation {
       // null. To do that we... return `null`
       return null;
     }
+    */
 
+    const oldValue = existingItem && existingItem[this.path];
+    console.log('>>> Old', oldValue);
+
+    const newValue = resolvedData[this.path];
+    console.log('>>> Incoming', newValue);
+
+    newValue.images = await Promise.all(
+      newValue.images.map(async data => {
+        if (data.image) {
+          const {
+            createReadStream,
+            filename: originalFilename,
+            mimetype,
+            encoding,
+          } = await data.image;
+
+          // Creating a new image
+          if (createReadStream) {
+            const stream = createReadStream();
+            const newId = new MongooseTypes.ObjectId();
+            const { id, filename, _meta } = await this.fileAdapter.save({
+              stream,
+              filename: originalFilename,
+              mimetype,
+              encoding,
+              id: newId,
+            });
+
+            return {
+              ...data,
+              image: { id, filename, originalFilename, mimetype, encoding, _meta },
+            };
+          }
+
+          const existing = oldValue.images.find(x => {
+            console.log(x.image.id.toString(), data.image.id.toString());
+            return x.image.id.toString() === data.image.id.toString();
+          });
+
+          console.log('>>> an existing?', existing);
+          return {
+            ...data,
+            image: existing.image,
+          };
+        }
+
+        return data;
+      })
+    );
+
+    console.log('>>> Outgoing', newValue);
+    return newValue;
+
+    /*
     const { createReadStream, filename: originalFilename, mimetype, encoding } = await uploadData;
     const stream = createReadStream();
 
@@ -124,6 +168,7 @@ class CloudinaryImageGallery extends CloudinaryImage.implementation {
     });
 
     return { id, filename, originalFilename, mimetype, encoding, _meta };
+    */
   }
 }
 
@@ -142,13 +187,14 @@ class MongoInterface extends CommonInterface(MongooseFieldAdapter) {
   addToMongooseSchema(schema) {
     const schemaOptions = {
       type: {
-        entries: [
+        images: [
           {
             type: {
               caption: String,
+              isCover: Boolean,
               image: {
                 type: {
-                  id: ObjectId,
+                  id: MongooseTypes.ObjectId,
                   path: String,
                   filename: String,
                   mimetype: String,
@@ -180,7 +226,7 @@ class KnexInterface extends CommonInterface(KnexFieldAdapter) {
 }
 
 module.exports = {
-  CloudinaryImageGallery,
+  CloudinaryGallery,
   MongoInterface,
   KnexInterface,
 };
