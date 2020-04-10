@@ -10,6 +10,19 @@ import arrayMove from 'array-move';
 
 import FieldGallery from './FieldGallery';
 
+/**
+ * Things to do:
+ *
+ * - Delete image
+ * - Caption
+ * - IsCover
+ * - Dismiss editor
+ * - Implement cover resolver
+ * - Make it pretty
+ * - Clean it up
+ * - Documentation/Readme
+ */
+
 const reducer = (state, action) => {
   switch (action.type) {
     case 'create':
@@ -43,10 +56,11 @@ const reducer = (state, action) => {
       return {
         ...state,
         images: state.images.map(item => {
-          return item.id === action.payload.id
+          const { id, ...payloadProps } = action.payload;
+          return item.id === id
             ? {
                 ...item,
-                image: action.payload.image,
+                ...payloadProps,
               }
             : item;
         }),
@@ -150,6 +164,7 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
       payload: {
         id: state.currentlyEditing,
         image: await getDataURI(file),
+        upload: file,
       },
     });
   };
@@ -157,48 +172,56 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
   return (
     <FieldContainer>
       <FieldLabel htmlFor={htmlID} field={field} errors={errors} />
-      <FieldInput>
-        <FieldGallery
-          images={state.images.map(x => ({ id: x.id, src: getImageSrc(x.image) }))}
-          onCreate={() => dispatch({ type: 'create' })}
-          onEdit={id => dispatch({ type: 'edit', payload: id })}
-          onMove={(from, to) => dispatch({ type: 'move-image', payload: { from, to } })}
-        />
-      </FieldInput>
-      {currentlyEditing && (
+      <div css={{ border: '1px solid #ccc', padding: 12, borderRadius: 6 }}>
         <FieldInput>
-          <div css={{ border: '1px solid #ccc', padding: 12, width: '100%', marginTop: 16 }}>
-            <label
-              css={{
-                background: '#ccc',
-                width: 120,
-                height: 120,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {currentlyEditing.image ? (
-                <img
-                  src={getImageSrc(currentlyEditing.image)}
-                  alt=""
-                  css={{ display: 'block', height: 120 }}
-                />
-              ) : (
-                <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
-              )}
-              <HiddenInput
-                autoComplete="off"
-                autoFocus={autoFocus}
-                id={htmlID}
-                name={field.path}
-                onChange={handleUpload}
-                type="file"
-              />
-            </label>
-          </div>
+          <FieldGallery
+            images={state.images.map(x => ({ id: x.id, src: getImageSrc(x.image) }))}
+            onCreate={() => dispatch({ type: 'create' })}
+            onEdit={id => dispatch({ type: 'edit', payload: id })}
+            onMove={(from, to) => dispatch({ type: 'move-image', payload: { from, to } })}
+          />
         </FieldInput>
-      )}
+        {currentlyEditing && (
+          <div css={{ borderTop: '1px solid #ccc', padding: '18px 0', margin: '12px 6px 0' }}>
+            <FieldInput>
+              <label
+                css={{
+                  background: '#ccc',
+                  width: 120,
+                  height: 120,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {currentlyEditing.image ? (
+                  <img
+                    src={getImageSrc(currentlyEditing.image)}
+                    alt=""
+                    css={{
+                      display: 'block',
+                      width: 120,
+                      height: 120,
+                      objectPosition: 'center',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
+                )}
+                <HiddenInput
+                  autoComplete="off"
+                  autoFocus={autoFocus}
+                  id={htmlID}
+                  name={field.path}
+                  onChange={handleUpload}
+                  type="file"
+                />
+              </label>
+            </FieldInput>
+          </div>
+        )}
+      </div>
     </FieldContainer>
   );
 };

@@ -8,23 +8,34 @@ import { PlusIcon } from '@arch-ui/icons';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 const GalleryTile = SortableElement(({ src, onClick }) => (
-  <div css={{ flexShrink: 0 }}>
+  <GridTile>
     <Button
       variant="subtle"
       onClick={onClick}
       css={{
         width: 120,
         height: 120,
+        padding: 0,
       }}
     >
-      <img src={src} alt="" css={{ display: 'block', height: 120 }} />
+      <img
+        src={src}
+        alt=""
+        css={{
+          display: 'block',
+          width: 120,
+          height: 120,
+          objectPosition: 'center',
+          objectFit: 'cover',
+        }}
+      />
     </Button>
-  </div>
+  </GridTile>
 ));
 
 const GalleryAddTile = SortableElement(({ onClick }) => (
-  <div css={{ flexShrink: 0 }}>
-    <Button variant="subtle" onClick={onClick}>
+  <GridTile>
+    <Button variant="subtle" onClick={onClick} css={{ padding: 0 }}>
       <div
         css={{
           width: 120,
@@ -42,11 +53,11 @@ const GalleryAddTile = SortableElement(({ onClick }) => (
         <PlusIcon css={{ color: '#333', width: 24, height: 24 }} />
       </div>
     </Button>
-  </div>
+  </GridTile>
 ));
 
 const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => (
-  <div css={{ display: 'flex', flexWrap: 'wrap' }}>
+  <Grid>
     {items.map(({ id, src }, index) =>
       !src ? null : (
         <GalleryTile
@@ -60,23 +71,23 @@ const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => (
       )
     )}
     <GalleryAddTile onClick={onCreate} index={items.length} value="create" disabled />
-  </div>
+  </Grid>
 ));
 
-const FieldGallery = ({ images, onEdit, onCreate, onMove }) => {
-  return (
-    <div css={{ border: '1px solid #ccc', padding: 12, width: '100%' }}>
-      <GalleryList
-        items={images}
-        onEdit={onEdit}
-        onCreate={onCreate}
-        axis="xy"
-        onSortEnd={({ oldIndex, newIndex }) => onMove(oldIndex, newIndex)}
-        distance={2}
-      />
-    </div>
-  );
-};
+const FieldGallery = ({ images, onEdit, onCreate, onMove }) => (
+  <GalleryList
+    items={images}
+    onEdit={onEdit}
+    onCreate={onCreate}
+    axis="xy"
+    onSortEnd={({ oldIndex, newIndex }) => onMove(oldIndex, newIndex)}
+    distance={2}
+  />
+);
+
+const Grid = props => <div css={{ display: 'flex', flexWrap: 'wrap' }} {...props} />;
+
+const GridTile = props => <div css={{ flexShrink: 0, padding: 6 }} {...props} />;
 
 FieldGallery.propTypes = {
   onEdit: PropTypes.func.isRequired,
