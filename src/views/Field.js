@@ -5,19 +5,54 @@ import React from 'react';
 import { FieldContainer, FieldLabel, FieldInput } from '@arch-ui/fields';
 import { Input, HiddenInput } from '@arch-ui/input';
 import { PlusIcon, CloudUploadIcon } from '@arch-ui/icons';
+import { Button } from '@arch-ui/button';
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case 'create':
+      // There's already an empty one to edit
+      const existingIndex = state.images.findIndex(x => !x.image);
+      if (existingIndex !== -1) return { ...state, currentlyEditing: existingIndex };
+
+      // Insert a new empty entry to edit
+      const newImageArray = [
+        ...state.images,
+        {
+          image: null,
+          caption: '',
+          isCover: false,
+        },
+      ];
+
+      return {
+        ...state,
+        images: newImageArray,
+        currentlyEditing: newImageArray.length - 1,
+      };
+
     case 'edit':
       return {
         ...state,
         currentlyEditing: action.payload,
       };
 
-    case 'add':
+    // case 'add':
+    //   return {
+    //     ...state,
+    //     images: [...state.images, action.payload],
+    //   };
+
+    case 'update-image':
       return {
         ...state,
-        images: [...state.images, action.payload],
+        images: state.images.map((item, i) => {
+          return i === action.payload.index
+            ? {
+                ...item,
+                image: action.payload.image,
+              }
+            : item;
+        }),
       };
 
     case 'editor-cancel':
@@ -44,13 +79,18 @@ const getDataURI = file =>
     reader.onloadend = upload => resolve(upload.target.result);
   });
 
-const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) => {
-  console.log('>>>', value);
+const getImageSrc = image => image?.publicUrlTransformed ?? image;
 
+const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) => {
   const [state, dispatch] = React.useReducer(reducer, {
     currentlyEditing: null,
     images: value.images ?? [],
   });
+
+  console.log('>>>', state);
+
+  const currentlyEditing =
+    state.currentlyEditing == null ? null : state.images[state.currentlyEditing];
 
   const memoizedImages = React.useMemo(
     () =>
@@ -98,12 +138,10 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
     // }
 
     dispatch({
-      type: 'add',
+      type: 'update-image',
       payload: {
-        caption: '',
+        index: state.currentlyEditing,
         image: await getDataURI(file),
-        upload: file,
-        isCover: false,
       },
     });
   };
@@ -114,41 +152,49 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
       <FieldInput>
         <div css={{ border: '1px solid #ccc', padding: 12, width: '100%' }}>
           <div css={{ display: 'flex', marginLeft: -6, marginTop: -6 }}>
-            {state.images.map(item => {
-              const imageId = item.image?.id ?? 'new-image';
-              const imageSrc = item.image?.publicUrlTransformed ?? item.image;
+            {state.images.map((item, i) => {
+              const id = item.image?.id ?? 'new-image';
+              const src = getImageSrc(item.image);
 
-              return (
-                <div key={imageId} css={{ paddingLeft: 6, paddingTop: 6 }}>
-                  <img src={imageSrc} alt="" css={{ display: 'block', height: 120 }} />
+              return !src ? null : (
+                <div key={id} css={{ paddingLeft: 6, paddingTop: 6 }}>
+                  <Button variant="subtle" onClick={() => dispatch({ type: 'edit', payload: i })}>
+                    <img
+                      src={src}
+                      alt=""
+                      css={{
+                        display: 'block',
+                        height: 120,
+                      }}
+                    />
+                  </Button>
                 </div>
               );
             })}
             <div css={{ paddingLeft: 6, paddingTop: 6 }}>
-              <button
-                css={{
-                  background: '#ccc',
-                  width: 120,
-                  height: 120,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                type="button"
-                onClick={() =>
-                  dispatch({
-                    type: 'edit',
-                    payload: { caption: '', file: '' },
-                  })
-                }
-              >
-                <PlusIcon css={{ color: '#333', width: 24, height: 24 }} />
-              </button>
+              <Button variant="subtle" css={{}} onClick={() => dispatch({ type: 'create' })}>
+                <div
+                  css={{
+                    width: 120,
+                    height: 120,
+                    background: '#e1e1e1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+
+                    '&:hover': {
+                      background: '#ccc',
+                    },
+                  }}
+                >
+                  <PlusIcon css={{ color: '#333', width: 24, height: 24 }} />
+                </div>
+              </Button>
             </div>
           </div>
         </div>
       </FieldInput>
-      {!!state.currentlyEditing && (
+      {currentlyEditing && (
         <FieldInput>
           <div css={{ border: '1px solid #ccc', padding: 12, width: '100%', marginTop: 16 }}>
             <label
@@ -161,7 +207,15 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
                 justifyContent: 'center',
               }}
             >
-              <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
+              {currentlyEditing.image ? (
+                <img
+                  src={getImageSrc(currentlyEditing.image)}
+                  alt=""
+                  css={{ display: 'block', height: 120 }}
+                />
+              ) : (
+                <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
+              )}
               <HiddenInput
                 autoComplete="off"
                 autoFocus={autoFocus}
