@@ -6,6 +6,7 @@ import { FieldContainer, FieldLabel, FieldInput } from '@arch-ui/fields';
 import { Input, HiddenInput } from '@arch-ui/input';
 import { PlusIcon, CloudUploadIcon } from '@arch-ui/icons';
 import { Button } from '@arch-ui/button';
+import uniqueString from 'unique-string';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -15,19 +16,19 @@ const reducer = (state, action) => {
       if (existingIndex !== -1) return { ...state, currentlyEditing: existingIndex };
 
       // Insert a new empty entry to edit
-      const newImageArray = [
-        ...state.images,
-        {
-          image: null,
-          caption: '',
-          isCover: false,
-        },
-      ];
-
+      const newId = uniqueString();
       return {
         ...state,
-        images: newImageArray,
-        currentlyEditing: newImageArray.length - 1,
+        images: [
+          ...state.images,
+          {
+            id: newId,
+            image: null,
+            caption: '',
+            isCover: false,
+          },
+        ],
+        currentlyEditing: newId,
       };
 
     case 'edit':
@@ -36,17 +37,11 @@ const reducer = (state, action) => {
         currentlyEditing: action.payload,
       };
 
-    // case 'add':
-    //   return {
-    //     ...state,
-    //     images: [...state.images, action.payload],
-    //   };
-
     case 'update-image':
       return {
         ...state,
-        images: state.images.map((item, i) => {
-          return i === action.payload.index
+        images: state.images.map(item => {
+          return item.id === action.payload.id
             ? {
                 ...item,
                 image: action.payload.image,
@@ -84,13 +79,18 @@ const getImageSrc = image => image?.publicUrlTransformed ?? image;
 const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) => {
   const [state, dispatch] = React.useReducer(reducer, {
     currentlyEditing: null,
-    images: value.images ?? [],
+    images:
+      value.images.map(item => ({
+        ...item,
+        id: uniqueString(),
+      })) ?? [],
   });
 
   console.log('>>>', state);
 
-  const currentlyEditing =
-    state.currentlyEditing == null ? null : state.images[state.currentlyEditing];
+  const currentlyEditing = state.currentlyEditing
+    ? state.images.find(x => x.id === state.currentlyEditing)
+    : null;
 
   const memoizedImages = React.useMemo(
     () =>
@@ -140,7 +140,7 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
     dispatch({
       type: 'update-image',
       payload: {
-        index: state.currentlyEditing,
+        id: state.currentlyEditing,
         image: await getDataURI(file),
       },
     });
@@ -152,13 +152,15 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
       <FieldInput>
         <div css={{ border: '1px solid #ccc', padding: 12, width: '100%' }}>
           <div css={{ display: 'flex', marginLeft: -6, marginTop: -6 }}>
-            {state.images.map((item, i) => {
-              const id = item.image?.id ?? 'new-image';
+            {state.images.map(item => {
               const src = getImageSrc(item.image);
 
               return !src ? null : (
-                <div key={id} css={{ paddingLeft: 6, paddingTop: 6 }}>
-                  <Button variant="subtle" onClick={() => dispatch({ type: 'edit', payload: i })}>
+                <div key={item.id} css={{ paddingLeft: 6, paddingTop: 6 }}>
+                  <Button
+                    variant="subtle"
+                    onClick={() => dispatch({ type: 'edit', payload: item.id })}
+                  >
                     <img
                       src={src}
                       alt=""
