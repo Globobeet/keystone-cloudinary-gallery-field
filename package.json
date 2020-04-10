@@ -16,7 +16,13 @@
     "@keystonejs/adapter-mongoose": "8.0.1",
     "@keystonejs/build-field-types": "^5.2.4",
     "@keystonejs/fields": "9.0.0",
+    "array-move": "^2.2.1",
     "mongoose": "^5.9.7",
+    "prop-types": "^15.7.2",
+    "react-dnd-html5-backend": "^10.0.2",
+    "react-gesture-responder": "^2.1.0",
+    "react-grid-dnd": "^2.1.2",
+    "react-sortable-hoc": "^1.11.0",
     "unique-string": "^2.0.0"
   }
 }

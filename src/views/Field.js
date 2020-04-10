@@ -3,10 +3,12 @@
 import { jsx } from '@emotion/core';
 import React from 'react';
 import { FieldContainer, FieldLabel, FieldInput } from '@arch-ui/fields';
-import { Input, HiddenInput } from '@arch-ui/input';
-import { PlusIcon, CloudUploadIcon } from '@arch-ui/icons';
-import { Button } from '@arch-ui/button';
+import { HiddenInput } from '@arch-ui/input';
+import { CloudUploadIcon } from '@arch-ui/icons';
 import uniqueString from 'unique-string';
+import arrayMove from 'array-move';
+
+import FieldGallery from './FieldGallery';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -48,6 +50,12 @@ const reducer = (state, action) => {
               }
             : item;
         }),
+      };
+
+    case 'move-image':
+      return {
+        ...state,
+        images: arrayMove(state.images, action.payload.from, action.payload.to),
       };
 
     case 'editor-cancel':
@@ -150,51 +158,12 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
     <FieldContainer>
       <FieldLabel htmlFor={htmlID} field={field} errors={errors} />
       <FieldInput>
-        <div css={{ border: '1px solid #ccc', padding: 12, width: '100%' }}>
-          <div css={{ display: 'flex', marginLeft: -6, marginTop: -6 }}>
-            {state.images.map(item => {
-              const src = getImageSrc(item.image);
-
-              return !src ? null : (
-                <div key={item.id} css={{ paddingLeft: 6, paddingTop: 6 }}>
-                  <Button
-                    variant="subtle"
-                    onClick={() => dispatch({ type: 'edit', payload: item.id })}
-                  >
-                    <img
-                      src={src}
-                      alt=""
-                      css={{
-                        display: 'block',
-                        height: 120,
-                      }}
-                    />
-                  </Button>
-                </div>
-              );
-            })}
-            <div css={{ paddingLeft: 6, paddingTop: 6 }}>
-              <Button variant="subtle" css={{}} onClick={() => dispatch({ type: 'create' })}>
-                <div
-                  css={{
-                    width: 120,
-                    height: 120,
-                    background: '#e1e1e1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-
-                    '&:hover': {
-                      background: '#ccc',
-                    },
-                  }}
-                >
-                  <PlusIcon css={{ color: '#333', width: 24, height: 24 }} />
-                </div>
-              </Button>
-            </div>
-          </div>
-        </div>
+        <FieldGallery
+          images={state.images.map(x => ({ id: x.id, src: getImageSrc(x.image) }))}
+          onCreate={() => dispatch({ type: 'create' })}
+          onEdit={id => dispatch({ type: 'edit', payload: id })}
+          onMove={(from, to) => dispatch({ type: 'move-image', payload: { from, to } })}
+        />
       </FieldInput>
       {currentlyEditing && (
         <FieldInput>
