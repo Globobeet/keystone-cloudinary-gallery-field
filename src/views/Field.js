@@ -9,6 +9,7 @@ import uniqueString from 'unique-string';
 import arrayMove from 'array-move';
 
 import FieldGallery from './FieldGallery';
+import FieldEditor from './FieldEditor';
 
 /**
  * Things to do:
@@ -27,8 +28,8 @@ const reducer = (state, action) => {
   switch (action.type) {
     case 'create':
       // There's already an empty one to edit
-      const existingIndex = state.images.findIndex(x => !x.image);
-      if (existingIndex !== -1) return { ...state, currentlyEditing: existingIndex };
+      const existing = state.images.find(x => !x.image);
+      if (existing) return { ...state, currentlyEditing: existing.id };
 
       // Insert a new empty entry to edit
       const newId = uniqueString();
@@ -78,6 +79,13 @@ const reducer = (state, action) => {
         currentlyEditing: null,
       };
 
+    case 'remove-image':
+      return {
+        ...state,
+        images: state.images.filter(x => x.id !== action.payload),
+        currentlyEditing: null,
+      };
+
     default:
       throw new Error(`Unhandled event: "${action.type}"`);
   }
@@ -116,11 +124,13 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
 
   const memoizedImages = React.useMemo(
     () =>
-      state.images.map(x => ({
-        caption: x.caption,
-        isCover: x.isCover,
-        image: x.upload || x.image,
-      })),
+      state.images
+        .filter(x => x.image)
+        .map(x => ({
+          caption: x.caption,
+          isCover: x.isCover,
+          image: x.upload || x.image,
+        })),
     [state.images]
   );
 
@@ -184,40 +194,14 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
         {currentlyEditing && (
           <div css={{ borderTop: '1px solid #ccc', padding: '18px 0', margin: '12px 6px 0' }}>
             <FieldInput>
-              <label
-                css={{
-                  background: '#ccc',
-                  width: 120,
-                  height: 120,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {currentlyEditing.image ? (
-                  <img
-                    src={getImageSrc(currentlyEditing.image)}
-                    alt=""
-                    css={{
-                      display: 'block',
-                      width: 120,
-                      height: 120,
-                      objectPosition: 'center',
-                      objectFit: 'cover',
-                    }}
-                  />
-                ) : (
-                  <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
-                )}
-                <HiddenInput
-                  autoComplete="off"
-                  autoFocus={autoFocus}
-                  id={htmlID}
-                  name={field.path}
-                  onChange={handleUpload}
-                  type="file"
-                />
-              </label>
+              <FieldEditor
+                {...currentlyEditing}
+                image={currentlyEditing.image ? getImageSrc(currentlyEditing.image) : null}
+                showRemove={!!currentlyEditing.image}
+                onUpload={handleUpload}
+                onRemove={() => dispatch({ type: 'remove-image', payload: currentlyEditing.id })}
+                onClose={() => dispatch({ type: 'editor-cancel' })}
+              />
             </FieldInput>
           </div>
         )}
