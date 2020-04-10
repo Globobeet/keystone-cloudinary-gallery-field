@@ -85,7 +85,9 @@ const FieldGallery = ({ images, onEdit, onCreate, onMove }) => (
   />
 );
 
-const Grid = props => <div css={{ display: 'flex', flexWrap: 'wrap' }} {...props} />;
+const Grid = props => (
+  <div css={{ display: 'flex', flexWrap: 'wrap', maxHeight: 324, overflowY: 'auto' }} {...props} />
+);
 
 const GridTile = props => <div css={{ flexShrink: 0, padding: 6 }} {...props} />;
 
