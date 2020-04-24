@@ -3,8 +3,6 @@
 import { jsx } from '@emotion/core';
 import React from 'react';
 import { FieldContainer, FieldLabel, FieldInput } from '@arch-ui/fields';
-import { HiddenInput } from '@arch-ui/input';
-import { CloudUploadIcon } from '@arch-ui/icons';
 import uniqueString from 'unique-string';
 import arrayMove from 'array-move';
 
@@ -14,13 +12,9 @@ import FieldEditor from './FieldEditor';
 /**
  * Things to do:
  *
- * - Delete image
- * - Caption
- * - IsCover
- * - Dismiss editor
- * - Implement cover resolver
- * - Make it pretty
- * - Clean it up
+ * - File validation
+ * - Error states
+ * - Remove isCover code
  * - Documentation/Readme
  */
 
@@ -190,7 +184,7 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
   return (
     <FieldContainer>
       <FieldLabel htmlFor={htmlID} field={field} errors={errors} />
-      <div css={{ border: '1px solid #ccc', padding: 12, borderRadius: 6 }}>
+      <div css={{ border: '1px solid #C1C7D0', padding: 12, borderRadius: 6, overflow: 'hidden' }}>
         <FieldInput>
           <FieldGallery
             images={state.images.map(x => ({
@@ -207,10 +201,10 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
         {currentlyEditing && (
           <div
             css={{
-              borderTop: '1px solid #ccc',
-              paddingTop: 18,
-              paddingBottom: 6,
-              margin: '12px 6px 0',
+              borderTop: '1px solid #E0E3E8',
+              padding: '24px 18px',
+              margin: '12px -12px -12px',
+              background: '#FAFBFC',
             }}
           >
             <FieldInput>

@@ -28,20 +28,46 @@ const FieldEditor = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            position: 'relative',
           }}
         >
           {image ? (
-            <img
-              src={image}
-              alt=""
-              css={{
-                display: 'block',
-                width: 120,
-                height: 120,
-                objectPosition: 'center',
-                objectFit: 'cover',
-              }}
-            />
+            <React.Fragment>
+              <span
+                css={{
+                  opacity: 0,
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  background: 'rgba(0, 0, 0, 0.45)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  transition: 'opacity 0.2s ease-out',
+                  padding: 12,
+                  cursor: 'pointer',
+
+                  '&:hover': {
+                    opacity: 1,
+                  },
+                }}
+              >
+                <CloudUploadIcon css={{ color: '#fff', opacity: 0.65, width: 32, height: 32 }} />
+              </span>
+              <img
+                src={image}
+                alt=""
+                css={{
+                  display: 'block',
+                  width: 120,
+                  height: 120,
+                  objectPosition: 'center',
+                  objectFit: 'cover',
+                }}
+              />
+            </React.Fragment>
           ) : (
             <CloudUploadIcon css={{ color: '#333', width: 24, height: 24 }} />
           )}

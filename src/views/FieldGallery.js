@@ -4,7 +4,7 @@ import { jsx, ClassNames } from '@emotion/core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@arch-ui/button';
-import { PlusIcon } from '@arch-ui/icons';
+import { PlusIcon, PencilIcon } from '@arch-ui/icons';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
@@ -17,9 +17,32 @@ const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
         height: 120,
         padding: 0,
         border: 0,
+        position: 'relative',
         outline: state === 'active' ? '3px solid #2684FF' : '',
       }}
     >
+      <span
+        css={{
+          opacity: 0,
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          background: 'rgba(0, 0, 0, 0.45)',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'flex-end',
+          transition: 'opacity 0.2s ease-out',
+          padding: 12,
+
+          '&:hover': {
+            opacity: 1,
+          },
+        }}
+      >
+        <PencilIcon css={{ color: '#fff', opacity: 0.65, width: 24, height: 24 }} />
+      </span>
       <img
         src={src}
         alt=""
