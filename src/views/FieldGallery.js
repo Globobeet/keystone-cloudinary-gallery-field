@@ -65,7 +65,7 @@ const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
   </GridTile>
 ));
 
-const GalleryAddTile = SortableElement(({ onClick }) => (
+const GalleryAddTile = SortableElement(({ onClick, active }) => (
   <GridTile>
     <Button variant="subtle" onClick={onClick} css={{ padding: 0 }}>
       <div
@@ -76,8 +76,10 @@ const GalleryAddTile = SortableElement(({ onClick }) => (
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: borderRadius / 2,
           transition: 'background .2s ease-out',
+          borderRadius: active ? borderRadius : borderRadius / 2,
+          boxShadow: active ? `0 0 0 3px ${colors.blue}` : '',
+          transition: 'all .2s ease-out',
           '&:hover': { background: colors.N20 },
         }}
       >
@@ -88,7 +90,9 @@ const GalleryAddTile = SortableElement(({ onClick }) => (
 ));
 
 const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => {
-  const editMode = items.some(x => x.isEditing);
+  const editing = items.find(x => x.isEditing);
+  const editMode = !!editing;
+  const createMode = editMode && !editing.src;
 
   return (
     <Grid>
@@ -111,7 +115,13 @@ const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => {
           />
         );
       })}
-      <GalleryAddTile onClick={onCreate} index={items.length} value="create" disabled />
+      <GalleryAddTile
+        onClick={onCreate}
+        index={items.length}
+        value="create"
+        active={createMode}
+        disabled
+      />
     </Grid>
   );
 });
