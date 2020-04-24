@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@arch-ui/button';
 import { PlusIcon, PencilIcon } from '@arch-ui/icons';
+import { borderRadius, gridSize, colors } from '@arch-ui/theme';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
 const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
@@ -18,13 +19,17 @@ const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
         padding: 0,
         border: 0,
         position: 'relative',
-        outline: state === 'active' ? '3px solid #2684FF' : '',
+        overflow: 'hidden',
+        borderRadius: state === 'active' ? borderRadius : borderRadius / 2,
+        boxShadow: state === 'active' ? `0 0 0 3px ${colors.blue}` : '',
+        transition: 'all .2s ease-out',
       }}
     >
       <span
         css={{
           opacity: 0,
           position: 'absolute',
+          zIndex: 1,
           top: 0,
           right: 0,
           bottom: 0,
@@ -34,11 +39,8 @@ const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
           justifyContent: 'flex-end',
           alignItems: 'flex-end',
           transition: 'opacity 0.2s ease-out',
-          padding: 12,
-
-          '&:hover': {
-            opacity: 1,
-          },
+          padding: gridSize * 1.5,
+          '&:hover': { opacity: 1 },
         }}
       >
         <PencilIcon css={{ color: '#fff', opacity: 0.65, width: 24, height: 24 }} />
@@ -48,6 +50,8 @@ const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
         alt=""
         title={caption}
         css={{
+          position: 'relative',
+          zIndex: 0,
           display: 'block',
           width: 120,
           height: 120,
@@ -68,17 +72,16 @@ const GalleryAddTile = SortableElement(({ onClick }) => (
         css={{
           width: 120,
           height: 120,
-          background: '#e1e1e1',
+          background: colors.N15,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-
-          '&:hover': {
-            background: '#ccc',
-          },
+          borderRadius: borderRadius / 2,
+          transition: 'background .2s ease-out',
+          '&:hover': { background: colors.N20 },
         }}
       >
-        <PlusIcon css={{ color: '#333', width: 24, height: 24 }} />
+        <PlusIcon css={{ color: colors.N50, width: 24, height: 24 }} />
       </div>
     </Button>
   </GridTile>
@@ -135,7 +138,7 @@ const Grid = props => (
   <div css={{ display: 'flex', flexWrap: 'wrap', maxHeight: 324, overflowY: 'auto' }} {...props} />
 );
 
-const GridTile = props => <div css={{ flexShrink: 0, padding: 6 }} {...props} />;
+const GridTile = props => <div css={{ flexShrink: 0, padding: gridSize * 0.75 }} {...props} />;
 
 FieldGallery.propTypes = {
   onEdit: PropTypes.func.isRequired,

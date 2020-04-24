@@ -335,6 +335,16 @@
     "@emotion/core" "^10.0.27"
     "@emotion/styled" "^10.0.27"
 
+"@arch-ui/lozenge@^0.0.16":
+  version "0.0.16"
+  resolved "https://registry.yarnpkg.com/@arch-ui/lozenge/-/lozenge-0.0.16.tgz#a3e85f3a26e1f261114f85dcefc54f497920089f"
+  integrity sha512-4jvKAmPhtaaHh+VHaNrFEnIqhfHQzyjVTsmpWl0/bFxmb2mn9ndwOFxQe+9mANLxj8tNniaaMRU9V73rMob9Ow==
+  dependencies:
+    "@arch-ui/theme" "0.0.10"
+    "@babel/runtime" "^7.8.4"
+    "@emotion/core" "^10.0.28"
+    "@emotion/styled" "^10.0.27"
+
 "@arch-ui/modal-utils@^1.0.9":
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/@arch-ui/modal-utils/-/modal-utils-1.0.9.tgz#95a97cbc3d7e7f17cd85b8dd27dae896a0762e9d"
