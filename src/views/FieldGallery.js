@@ -1,13 +1,13 @@
 /** @jsx jsx */
 
-import { jsx } from '@emotion/core';
+import { jsx, ClassNames } from '@emotion/core';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@arch-ui/button';
 import { PlusIcon } from '@arch-ui/icons';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 
-const GalleryTile = SortableElement(({ src, onClick }) => (
+const GalleryTile = SortableElement(({ src, caption, state, onClick }) => (
   <GridTile>
     <Button
       variant="subtle"
@@ -16,17 +16,22 @@ const GalleryTile = SortableElement(({ src, onClick }) => (
         width: 120,
         height: 120,
         padding: 0,
+        border: 0,
+        outline: state === 'active' ? '3px solid #2684FF' : '',
       }}
     >
       <img
         src={src}
         alt=""
+        title={caption}
         css={{
           display: 'block',
           width: 120,
           height: 120,
           objectPosition: 'center',
           objectFit: 'cover',
+          opacity: state === 'inactive' ? 0.4 : 1,
+          transition: 'opacity .2s ease-out',
         }}
       />
     </Button>
@@ -56,33 +61,51 @@ const GalleryAddTile = SortableElement(({ onClick }) => (
   </GridTile>
 ));
 
-const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => (
-  <Grid>
-    {items.map(({ id, src }, index) =>
-      !src ? null : (
-        <GalleryTile
-          key={id}
-          id={id}
-          src={src}
-          onClick={() => onEdit(id)}
-          index={index}
-          value={id}
-        />
-      )
-    )}
-    <GalleryAddTile onClick={onCreate} index={items.length} value="create" disabled />
-  </Grid>
-));
+const GalleryList = SortableContainer(({ items, onEdit, onCreate }) => {
+  const editMode = items.some(x => x.isEditing);
+
+  return (
+    <Grid>
+      {items.map(({ id, src, caption, isEditing }, index) => {
+        if (!src) return null;
+
+        let editState = 'default';
+        if (editMode) editState = isEditing ? 'active' : 'inactive';
+
+        return (
+          <GalleryTile
+            key={id}
+            id={id}
+            src={src}
+            caption={caption}
+            state={editState}
+            onClick={() => onEdit(id)}
+            index={index}
+            value={id}
+          />
+        );
+      })}
+      <GalleryAddTile onClick={onCreate} index={items.length} value="create" disabled />
+    </Grid>
+  );
+});
 
 const FieldGallery = ({ images, onEdit, onCreate, onMove }) => (
-  <GalleryList
-    items={images}
-    onEdit={onEdit}
-    onCreate={onCreate}
-    axis="xy"
-    onSortEnd={({ oldIndex, newIndex }) => onMove(oldIndex, newIndex)}
-    distance={2}
-  />
+  <ClassNames>
+    {({ css }) => (
+      <GalleryList
+        items={images}
+        onEdit={onEdit}
+        onCreate={onCreate}
+        axis="xy"
+        onSortEnd={({ oldIndex, newIndex }) => onMove(oldIndex, newIndex)}
+        distance={2}
+        helperClass={css`
+          z-index: 5;
+        `}
+      />
+    )}
+  </ClassNames>
 );
 
 const Grid = props => (
@@ -98,6 +121,8 @@ FieldGallery.propTypes = {
     PropTypes.shape({
       id: PropTypes.string,
       src: PropTypes.string,
+      caption: PropTypes.string,
+      isEditing: PropTypes.bool,
     })
   ),
 };

@@ -73,6 +73,14 @@ const reducer = (state, action) => {
         images: arrayMove(state.images, action.payload.from, action.payload.to),
       };
 
+    case 'update-caption':
+      return {
+        ...state,
+        images: state.images.map(image =>
+          image.id !== state.currentlyEditing ? image : { ...image, caption: action.payload }
+        ),
+      };
+
     case 'editor-cancel':
       return {
         ...state,
@@ -110,7 +118,7 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
   const [state, dispatch] = React.useReducer(reducer, {
     currentlyEditing: null,
     images:
-      value.images.map(item => ({
+      (value?.images ?? []).map(item => ({
         ...item,
         id: uniqueString(),
       })) ?? [],
@@ -185,20 +193,34 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
       <div css={{ border: '1px solid #ccc', padding: 12, borderRadius: 6 }}>
         <FieldInput>
           <FieldGallery
-            images={state.images.map(x => ({ id: x.id, src: getImageSrc(x.image) }))}
+            images={state.images.map(x => ({
+              id: x.id,
+              src: getImageSrc(x.image),
+              caption: x.caption,
+              isEditing: x.id === currentlyEditing?.id,
+            }))}
             onCreate={() => dispatch({ type: 'create' })}
             onEdit={id => dispatch({ type: 'edit', payload: id })}
             onMove={(from, to) => dispatch({ type: 'move-image', payload: { from, to } })}
           />
         </FieldInput>
         {currentlyEditing && (
-          <div css={{ borderTop: '1px solid #ccc', padding: '18px 0', margin: '12px 6px 0' }}>
+          <div
+            css={{
+              borderTop: '1px solid #ccc',
+              paddingTop: 18,
+              paddingBottom: 6,
+              margin: '12px 6px 0',
+            }}
+          >
             <FieldInput>
               <FieldEditor
                 {...currentlyEditing}
                 image={currentlyEditing.image ? getImageSrc(currentlyEditing.image) : null}
+                caption={currentlyEditing.caption}
                 showRemove={!!currentlyEditing.image}
                 onUpload={handleUpload}
+                onChangeCaption={caption => dispatch({ type: 'update-caption', payload: caption })}
                 onRemove={() => dispatch({ type: 'remove-image', payload: currentlyEditing.id })}
                 onClose={() => dispatch({ type: 'editor-cancel' })}
               />
