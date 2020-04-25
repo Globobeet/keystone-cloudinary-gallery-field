@@ -13,8 +13,6 @@ import FieldEditor from './FieldEditor';
 /**
  * Things to do:
  *
- * - Remove isCover code
- * - Loading state
  * - Documentation/Readme
  * - Publish to NPM
  */
@@ -43,7 +41,6 @@ const reducer = (state, action) => {
             id: newId,
             image: null,
             caption: '',
-            isCover: false,
           },
         ],
         currentlyEditing: newId,
@@ -120,12 +117,7 @@ const reducer = (state, action) => {
 const getDataURI = file =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
-
     reader.readAsDataURL(file);
-    // reader.onloadstart = () => {
-    //   this.setState({ isLoading: true });
-    // };
-
     reader.onerror = err => reject(err);
     reader.onloadend = upload => resolve(upload.target.result);
   });
@@ -153,7 +145,6 @@ const CloudinaryGalleryField = ({ field, value, onChange, autoFocus, errors }) =
         .filter(x => x.image)
         .map(x => ({
           caption: x.caption,
-          isCover: x.isCover,
           image: x.upload || x.image,
         })),
     [state.images]

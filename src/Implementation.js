@@ -35,7 +35,6 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
       ...super.getGqlAuxTypes({ schemaName }),
       `
           input CloudinaryGalleryImageInput {
-              isCover: Boolean
               caption: String
               image: Upload
           }
@@ -43,12 +42,10 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
               images: [CloudinaryGalleryImageInput]
           }
           type CloudinaryGalleryImage {
-              isCover: Boolean
               caption: String
               image: CloudinaryImage_File
           }
           type CloudinaryGallery {
-            cover: CloudinaryImage_File
             images: [CloudinaryGalleryImage]
           }
         `,
@@ -64,40 +61,8 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
   }
 
   async resolveInput({ resolvedData, existingItem }) {
-    /*
-    I don't think these apply to us, as our "null" condition would still
-    look like:
-
-    {
-      cover: null,
-      images: [],
-    }
-
-
-    const previousData = existingItem && existingItem[this.path];
-    const uploadData = resolvedData[this.path];
-
-    // NOTE: The following two conditions could easily be combined into a
-    // single `if (!uploadData) return uploadData`, but that would lose the
-    // nuance of returning `undefined` vs `null`.
-    // Premature Optimisers; be ware!
-    if (typeof uploadData === 'undefined') {
-      // Nothing was passed in, so we can bail early.
-      return undefined;
-    }
-
-    if (uploadData === null) {
-      // `null` was specifically uploaded, and we should set the field value to
-      // null. To do that we... return `null`
-      return null;
-    }
-    */
-
     const oldValue = existingItem && existingItem[this.path];
-    console.log('>>> Old', oldValue);
-
     const newValue = resolvedData[this.path];
-    console.log('>>> Incoming', newValue);
 
     newValue.images = await Promise.all(
       newValue.images.map(async data => {
@@ -127,48 +92,18 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
             };
           }
 
-          const existing = oldValue.images.find(x => {
-            console.log(x.image.id.toString(), data.image.id.toString());
-            return x.image.id.toString() === data.image.id.toString();
-          });
+          const existing = oldValue.images.find(
+            x => x.image.id.toString() === data.image.id.toString()
+          );
 
-          console.log('>>> an existing?', existing);
-          return {
-            ...data,
-            image: existing.image,
-          };
+          return { ...data, image: existing.image };
         }
 
         return data;
       })
     );
 
-    console.log('>>> Outgoing', newValue);
     return newValue;
-
-    /*
-    const { createReadStream, filename: originalFilename, mimetype, encoding } = await uploadData;
-    const stream = createReadStream();
-
-    if (!stream && previousData) {
-      // TODO: FIXME: Handle when stream is null. Can happen when:
-      // Updating some other part of the item, but not the file (gets null
-      // because no File DOM element is uploaded)
-      return previousData;
-    }
-
-    const newId = new ObjectId();
-
-    const { id, filename, _meta } = await this.fileAdapter.save({
-      stream,
-      filename: originalFilename,
-      mimetype,
-      encoding,
-      id: newId,
-    });
-
-    return { id, filename, originalFilename, mimetype, encoding, _meta };
-    */
   }
 }
 
@@ -191,7 +126,6 @@ class MongoInterface extends CommonInterface(MongooseFieldAdapter) {
           {
             type: {
               caption: String,
-              isCover: Boolean,
               image: {
                 type: {
                   id: MongooseTypes.ObjectId,
