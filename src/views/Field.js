@@ -10,13 +10,6 @@ import arrayMove from 'array-move';
 import FieldGallery from './FieldGallery';
 import FieldEditor from './FieldEditor';
 
-/**
- * Things to do:
- *
- * - Documentation/Readme
- * - Publish to NPM
- */
-
 // Error messages taken from CloudinaryField
 const errorMessages = {
   invalid: 'Only image files are allowed. Please try again.',

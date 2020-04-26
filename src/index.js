@@ -3,6 +3,14 @@ const { File } = require('@keystonejs/fields');
 
 const { CloudinaryGallery, MongoInterface, KnexInterface } = require('./Implementation');
 
+/**
+ * Things to do:
+ *
+ * - Filter view
+ * - Cell view
+ * - Publish to NPM
+ */
+
 module.exports = {
   type: 'Stars',
   implementation: CloudinaryGallery,
