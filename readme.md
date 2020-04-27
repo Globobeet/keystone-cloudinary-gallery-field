@@ -11,13 +11,23 @@ yarn add keystone-cloudinary-gallery-field
 npm install keystone-cloudinary-gallery-field
 ```
 
-Then add the field to a list, passing a valid `CloudinaryAdapter` instance
+Then, you'll need a file adapter (which is also used for CloudinaryImage fields)
 
 ```js
 const { CloudinaryAdapter } = require('@keystonejs/file-adapters');
-const KeystoneCloudinaryGallery = require('keystone-cloudinary-gallery-field');
 
-const cloudinaryAdapter = new CloudinaryAdapter({...});
+const cloudinaryAdapter = new CloudinaryAdapter({
+  cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  apiKey: process.env.CLOUDINARY_KEY,
+  apiSecret: process.env.CLOUDINARY_SECRET,
+  folder: 'my-keystone-app',
+});
+```
+
+Then add the field to any list, passing your `CloudinaryAdapter` instance
+
+```js
+const KeystoneCloudinaryGallery = require('keystone-cloudinary-gallery-field');
 
 keystone.createList('Post', {
   fields: {
