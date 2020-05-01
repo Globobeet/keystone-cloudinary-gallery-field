@@ -1,4 +1,4 @@
-# CloudinaryImageGallery
+# Keystone Cloudinary Gallery Field
 
 A sortable list of images uploaded to Cloudinary.
 
@@ -9,8 +9,8 @@ A sortable list of images uploaded to Cloudinary.
 You will first need to install the package with your preferred package manager:
 
 ```bash
-yarn add keystone-cloudinary-gallery-field
-npm install keystone-cloudinary-gallery-field
+yarn add @globobeet/keystone-cloudinary-gallery-field
+npm install @globobeet/keystone-cloudinary-gallery-field
 ```
 
 Then, you'll need a file adapter (which is also used for CloudinaryImage fields)
@@ -29,7 +29,7 @@ const cloudinaryAdapter = new CloudinaryAdapter({
 Then add the field to any list, passing your `CloudinaryAdapter` instance
 
 ```js
-const KeystoneCloudinaryGallery = require('keystone-cloudinary-gallery-field');
+const KeystoneCloudinaryGallery = require('@globobeet/keystone-cloudinary-gallery-field');
 
 keystone.createList('Post', {
   fields: {
