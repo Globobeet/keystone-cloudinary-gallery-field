@@ -1,5 +1,5 @@
 {
-  "name": "keystone-cloudinary-gallery-field",
+  "name": "@globobeet/keystone-cloudinary-gallery-field",
   "version": "1.0.0",
   "main": "src/index.js",
   "repository": "https://github.com/Globobeet/keystone-cloudinary-gallery-field.git",
