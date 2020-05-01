@@ -1,10 +1,14 @@
 {
   "name": "@globobeet/keystone-cloudinary-gallery-field",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "repository": "https://github.com/Globobeet/keystone-cloudinary-gallery-field.git",
   "author": "Globobeet <hello@globobeet.org>",
   "license": "MIT",
+  "scripts": {
+    "build": "NODE_ENV=production rm -rf ./dist/ && babel src --out-dir dist",
+    "prepublish": "yarn build"
+  },
   "dependencies": {
     "@arch-ui/button": "^0.0.17",
     "@arch-ui/fields": "^2.1.5",
@@ -12,6 +16,9 @@
     "@arch-ui/input": "^0.1.7",
     "@arch-ui/lozenge": "^0.0.16",
     "@arch-ui/theme": "^0.0.10",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-react": "^7.9.4",
     "@emotion/core": "^10.0.28",
     "@keystonejs/adapter-knex": "9.0.1",
     "@keystonejs/adapter-mongoose": "8.0.1",
@@ -25,5 +32,8 @@
     "react-grid-dnd": "^2.1.2",
     "react-sortable-hoc": "^1.11.0",
     "unique-string": "^2.0.0"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.8.3"
   }
 }
