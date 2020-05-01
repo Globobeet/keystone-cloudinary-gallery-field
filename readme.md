@@ -2,6 +2,8 @@
 
 A sortable list of images uploaded to Cloudinary.
 
+![Screensot](https://cdn-std.droplr.net/files/acc_197298/o2UccL)
+
 ## Usage
 
 You will first need to install the package with your preferred package manager:

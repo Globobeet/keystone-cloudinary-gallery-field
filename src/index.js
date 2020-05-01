@@ -1,15 +1,6 @@
 const { importView } = require('@keystonejs/build-field-types');
-const { File } = require('@keystonejs/fields');
 
 const { CloudinaryGallery, MongoInterface, KnexInterface } = require('./Implementation');
-
-/**
- * Things to do:
- *
- * - Filter view
- * - Cell view
- * - Publish to NPM
- */
 
 module.exports = {
   type: 'Stars',
@@ -17,7 +8,7 @@ module.exports = {
   views: {
     Controller: importView('./views/Controller'),
     Field: importView('./views/Field'),
-    Filter: File.views.Filter,
+    Filter: importView('./views/Filter'),
     Cell: importView('./views/Cell'),
   },
   adapters: {

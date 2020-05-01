@@ -64,6 +64,9 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
     const oldValue = existingItem && existingItem[this.path];
     const newValue = resolvedData[this.path];
 
+    // This field wasn't changed
+    if (newValue.images == null) return;
+
     newValue.images = await Promise.all(
       newValue.images.map(async data => {
         if (data.image) {
