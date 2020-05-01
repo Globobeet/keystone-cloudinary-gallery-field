@@ -65,7 +65,7 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
     const newValue = resolvedData[this.path];
 
     // This field wasn't changed
-    if (newValue.images == null) return;
+    if (!newValue.images) return;
 
     newValue.images = await Promise.all(
       newValue.images.map(async data => {
@@ -95,7 +95,7 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
             };
           }
 
-          const existing = oldValue.images.find(
+          const existing = (oldValue.images || []).find(
             x => x.image.id.toString() === data.image.id.toString()
           );
 
