@@ -1,7 +1,7 @@
 const FieldController = require('@keystonejs/fields/Controller');
 
 class CloudinaryGalleryController extends FieldController.default {
-  serialize = data => {
+  serialize = (data) => {
     const { path } = this;
     if (!data || !data[path]) {
       // Forcibly return null if empty string
@@ -23,7 +23,8 @@ class CloudinaryGalleryController extends FieldController.default {
                 publicUrlTransformed(transformation: {
                     width: "240"
                     height: "240"
-                    crop: "limit"
+                    crop: "fill"
+                    gravity: "faces:auto"
                     fetch_format: "auto"
                 })
             }

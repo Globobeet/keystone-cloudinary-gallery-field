@@ -3,7 +3,7 @@ const { importView } = require('@keystonejs/build-field-types');
 const { CloudinaryGallery, MongoInterface, KnexInterface } = require('./Implementation');
 
 module.exports = {
-  type: 'Stars',
+  type: 'CloudinaryGallery',
   implementation: CloudinaryGallery,
   views: {
     Controller: importView('./views/Controller'),

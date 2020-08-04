@@ -30,25 +30,24 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
     };
   }
 
-  getGqlAuxTypes({ schemaName }) {
+  getGqlAuxTypes() {
     return [
-      ...super.getGqlAuxTypes({ schemaName }),
       `
-          input CloudinaryGalleryImageInput {
-              caption: String
-              image: Upload
-          }
-          input CloudinaryGalleryInput {
-              images: [CloudinaryGalleryImageInput]
-          }
-          type CloudinaryGalleryImage {
-              caption: String
-              image: CloudinaryImage_File
-          }
-          type CloudinaryGallery {
-            images: [CloudinaryGalleryImage]
-          }
-        `,
+        input CloudinaryGalleryImageInput {
+            caption: String
+            image: Upload
+        }
+        input CloudinaryGalleryInput {
+            images: [CloudinaryGalleryImageInput]
+        }
+        type CloudinaryGalleryImage {
+            caption: String
+            image: CloudinaryImage_File
+        }
+        type CloudinaryGallery {
+          images: [CloudinaryGalleryImage]
+        }
+      `,
     ];
   }
 
