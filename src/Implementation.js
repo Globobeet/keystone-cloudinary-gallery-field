@@ -10,13 +10,13 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
 
   gqlOutputFieldResolvers() {
     return {
-      [this.path]: item => {
+      [this.path]: (item) => {
         const itemValues = item[this.path];
         if (!itemValues) return null;
         const images = itemValues.images || [];
         return {
           ...itemValues,
-          images: images.map(item => ({
+          images: images.map((item) => ({
             ...item,
             image: {
               ...item.image,
@@ -51,11 +51,11 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
     ];
   }
 
-  get gqlUpdateInputFields() {
+  gqlUpdateInputFields() {
     return [`${this.path}: CloudinaryGalleryInput`];
   }
 
-  get gqlCreateInputFields() {
+  gqlCreateInputFields() {
     return [`${this.path}: CloudinaryGalleryInput`];
   }
 
@@ -67,7 +67,7 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
     if (!newValue.images) return;
 
     newValue.images = await Promise.all(
-      newValue.images.map(async data => {
+      newValue.images.map(async (data) => {
         if (data.image) {
           const {
             createReadStream,
@@ -95,7 +95,7 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
           }
 
           const existing = (oldValue.images || []).find(
-            x => x.image.id.toString() === data.image.id.toString()
+            (x) => x.image.id.toString() === data.image.id.toString()
           );
 
           return { ...data, image: existing.image };
@@ -109,7 +109,7 @@ class CloudinaryGallery extends CloudinaryImage.implementation {
   }
 }
 
-const CommonInterface = superclass =>
+const CommonInterface = (superclass) =>
   class extends superclass {
     getQueryConditions(dbPath) {
       return {
